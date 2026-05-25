@@ -1,7 +1,7 @@
-import { summarizeWithGemini } from "../services/gemini.service";
+import { askGeminiAboutPage, summarizeWithGemini } from "../services/gemini.service";
 
 chrome.runtime.onMessage.addListener((message, _, sendResponse) => {
-  if (message.type !== "SUMMARIZE_PAGE") {
+  if (message.type !== "SUMMARIZE_PAGE" && message.type !== "ASK_PAGE") {
     return;
   }
 
@@ -22,19 +22,25 @@ chrome.runtime.onMessage.addListener((message, _, sendResponse) => {
         type: "GET_PAGE_TEXT"
       });
 
-      const summary = await summarizeWithGemini(pageText);
+      const result =
+        message.type === "ASK_PAGE"
+          ? await askGeminiAboutPage(pageText, message.question)
+          : await summarizeWithGemini(pageText);
 
-      if (!summary) {
+      if (!result) {
         sendResponse({ success: false });
         return;
       }
 
       sendResponse({
         success: true,
-        data: summary
+        data: result
       });
-    } catch {
-      sendResponse({ success: false });
+    } catch (error) {
+      sendResponse({
+        success: false,
+        error: error instanceof Error ? error.message : "Request failed"
+      });
     }
   })();
 
