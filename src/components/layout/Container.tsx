@@ -1,6 +1,13 @@
 import { useMemo, useState } from "react";
 import type { FormEvent } from "react";
-import { AlertCircle, Loader2, Send, Sparkles } from "lucide-react";
+import {
+  AlertCircle,
+  Bot,
+  Loader2,
+  MessageSquareText,
+  Send,
+  Sparkles,
+} from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { askCurrentPage, summarizeCurrentPage } from "@/services/chrome.service";
@@ -82,38 +89,52 @@ const Container = () => {
 
   return (
     <div className={cn(isDark && "dark")}>
-      <div className="flex h-[620px] w-[400px] flex-col overflow-hidden bg-zinc-50 text-zinc-950 shadow-2xl dark:bg-zinc-950 dark:text-zinc-50">
-        <Header
-          isDark={isDark}
-          onToggleTheme={() => setIsDark((current) => !current)}
-        />
+      <div className="flex h-[640px] w-[420px] overflow-hidden bg-zinc-50 text-zinc-950 shadow-2xl dark:bg-zinc-950 dark:text-zinc-50">
+        <aside className="flex w-12 flex-col items-center gap-3 border-r border-zinc-200 bg-white px-2 py-3 dark:border-zinc-800 dark:bg-zinc-950">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-zinc-950 text-white dark:bg-zinc-50 dark:text-zinc-950">
+            <Bot className="h-4 w-4" />
+          </div>
+          <div className="h-px w-6 bg-zinc-200 dark:bg-zinc-800" />
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-sky-50 text-sky-700 dark:bg-sky-950 dark:text-sky-300">
+            <MessageSquareText className="h-4 w-4" />
+          </div>
+        </aside>
 
-        <main className="flex min-h-0 flex-1 flex-col">
-          <section className="flex items-center gap-2 border-b border-zinc-200 px-4 py-3 dark:border-zinc-800">
-            <Button
-              className="h-9 flex-1 bg-sky-600 text-white hover:bg-sky-700 dark:bg-sky-500 dark:text-zinc-950 dark:hover:bg-sky-400"
-              disabled={loadingMode !== null}
-              onClick={handleSummarize}
-              type="button"
-            >
-              {loadingMode === "summary" ? (
-                <Loader2 className="size-4 animate-spin" />
-              ) : (
-                <Sparkles className="size-4" />
-              )}
-              Summarize
-            </Button>
-          </section>
+        <div className="flex min-w-0 flex-1 flex-col">
+          <Header
+            isDark={isDark}
+            onToggleTheme={() => setIsDark((current) => !current)}
+          />
 
-          <section className="min-h-0 flex-1 space-y-3 overflow-y-auto px-4 py-4">
+          <main className="flex min-h-0 flex-1 flex-col">
+            <section className="border-b border-zinc-200 bg-white px-4 py-3 dark:border-zinc-800 dark:bg-zinc-950">
+              <Button
+                className="h-11 w-full bg-sky-600 text-sm font-semibold text-white shadow-sm shadow-sky-600/20 hover:bg-sky-700 dark:bg-sky-400 dark:text-zinc-950 dark:shadow-sky-400/10 dark:hover:bg-sky-300"
+                disabled={loadingMode !== null}
+                onClick={handleSummarize}
+                type="button"
+              >
+                {loadingMode === "summary" ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Sparkles className="h-4 w-4" />
+                )}
+                {loadingMode === "summary" ? "Summarizing page" : "Summarize in 3 bullets"}
+              </Button>
+            </section>
+
+            <section className="min-h-0 flex-1 space-y-3 overflow-y-auto bg-zinc-50 px-4 py-4 dark:bg-zinc-950">
             {messages.length === 0 && !error ? (
               <div className="flex h-full items-center justify-center text-center">
-                <div>
-                  <div className="mx-auto mb-3 flex size-10 items-center justify-center rounded-lg border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
-                    <Sparkles className="size-5 text-sky-600 dark:text-sky-400" />
+                <div className="max-w-[250px]">
+                  <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-lg border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
+                    <Sparkles className="h-5 w-5 text-sky-600 dark:text-sky-300" />
                   </div>
-                  <p className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                    Ready for this page.
+                  <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
+                    Ready to read this page
+                  </p>
+                  <p className="mt-1 text-xs leading-5 text-zinc-500 dark:text-zinc-400">
+                    Summarize it or ask a focused question from the input below.
                   </p>
                 </div>
               </div>
@@ -122,9 +143,9 @@ const Container = () => {
             {messages.map((message) => (
               <article
                 className={cn(
-                  "max-w-[88%] rounded-lg px-3 py-2 text-sm leading-6",
+                  "max-w-[88%] rounded-lg px-3.5 py-2.5 text-sm leading-6 shadow-sm",
                   message.role === "user"
-                    ? "ml-auto bg-sky-600 text-white dark:bg-sky-500 dark:text-zinc-950"
+                    ? "ml-auto bg-zinc-950 text-white dark:bg-zinc-100 dark:text-zinc-950"
                     : "border border-zinc-200 bg-white text-zinc-800 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100"
                 )}
                 key={message.id}
@@ -134,9 +155,9 @@ const Container = () => {
             ))}
 
             {loadingMode === "ask" ? (
-              <div className="inline-flex items-center gap-2 rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-500 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-400">
-                <Loader2 className="size-4 animate-spin" />
-                Thinking
+              <div className="inline-flex items-center gap-2 rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-500 shadow-sm dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-400">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Moyy is reading
               </div>
             ) : null}
 
@@ -146,43 +167,44 @@ const Container = () => {
                 <span>{error}</span>
               </div>
             ) : null}
-          </section>
+            </section>
 
-          <form
-            className="border-t border-zinc-200 bg-white p-3 dark:border-zinc-800 dark:bg-zinc-950"
-            onSubmit={handleAsk}
-          >
-            <div className="flex items-end gap-2">
-              <textarea
-                className="max-h-28 min-h-11 flex-1 resize-none rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm leading-6 text-zinc-950 outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-50"
-                disabled={loadingMode !== null}
-                onChange={(event) => setQuery(event.target.value)}
-                onKeyDown={(event) => {
-                  if (event.key === "Enter" && !event.shiftKey) {
-                    event.preventDefault();
-                    event.currentTarget.form?.requestSubmit();
-                  }
-                }}
-                placeholder="Ask about this page..."
-                rows={1}
-                value={query}
-              />
-              <Button
-                aria-label="Send question"
-                className="size-11 bg-zinc-950 text-white hover:bg-zinc-800 disabled:opacity-40 dark:bg-zinc-100 dark:text-zinc-950 dark:hover:bg-white"
-                disabled={!canSend}
-                size="icon"
-                type="submit"
-              >
-                {loadingMode === "ask" ? (
-                  <Loader2 className="size-4 animate-spin" />
-                ) : (
-                  <Send className="size-4" />
-                )}
-              </Button>
-            </div>
-          </form>
-        </main>
+            <form
+              className="border-t border-zinc-200 bg-white p-3 dark:border-zinc-800 dark:bg-zinc-950"
+              onSubmit={handleAsk}
+            >
+              <div className="flex items-end gap-2 rounded-lg border border-zinc-200 bg-zinc-50 p-1.5 shadow-sm transition focus-within:border-sky-500 focus-within:ring-2 focus-within:ring-sky-500/20 dark:border-zinc-800 dark:bg-zinc-900">
+                <textarea
+                  className="max-h-28 min-h-10 flex-1 resize-none border-0 bg-transparent px-2 py-2 text-sm leading-6 text-zinc-950 outline-none placeholder:text-zinc-400 disabled:cursor-not-allowed dark:text-zinc-50 dark:placeholder:text-zinc-500"
+                  disabled={loadingMode !== null}
+                  onChange={(event) => setQuery(event.target.value)}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter" && !event.shiftKey) {
+                      event.preventDefault();
+                      event.currentTarget.form?.requestSubmit();
+                    }
+                  }}
+                  placeholder="Ask Moyy about this page..."
+                  rows={1}
+                  value={query}
+                />
+                <Button
+                  aria-label="Send question"
+                  className="h-10 w-10 bg-sky-600 text-white shadow-sm hover:bg-sky-700 disabled:opacity-40 dark:bg-sky-400 dark:text-zinc-950 dark:hover:bg-sky-300"
+                  disabled={!canSend}
+                  size="icon"
+                  type="submit"
+                >
+                  {loadingMode === "ask" ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Send className="h-4 w-4" />
+                  )}
+                </Button>
+              </div>
+            </form>
+          </main>
+        </div>
       </div>
     </div>
   );
